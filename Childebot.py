@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import sys
 
 class Childebot(nn.Module):
 
@@ -16,7 +17,26 @@ class Childebot(nn.Module):
         output - self.decoder(output)
 
         return output, hidden
-    
+
+def tokenize(text):
+    return text.lower().split()
+
+def get_dataset(file_path):
+    dataset = []
+    with open(file_path, 'r') as file:
+        for line in file:
+            input_text = line.strip().split('\t')
+            target_text = line.strip().split('\t') 
+            input_tokens = tokenize(input_text)
+            target_tokens = tokenize(target_text)
+            dataset.append((input_tokens, target_tokens))
+    return dataset
+
+dir = sys.path[0]
+data_file = (dir + "\dataset.json")
+
+dataset = get_dataset(data_file)
+
 input_size = 100
 hidden_size = 256
 output_size = 100
@@ -25,3 +45,11 @@ model = Childebot(input_size, hidden_size, output_size)
 
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
+
+for input, target in dataset:
+    optimizer.zero_grad()
+    output, _ = model(input)
+    loss = criterion(output, target)
+    loss.backward()
+    optimizer.step()
+    torch.save(model, 'Childebot.pth')

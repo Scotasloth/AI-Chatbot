@@ -1,11 +1,16 @@
 from transformers import GPT2Tokenizer, GPT2LMHeadModel
+import sys
+import torch
 
 def main():
-    
-    token = GPT2Tokenizer.from_pretrained("gpt2")
-    model = GPT2LMHeadModel.from_pretrained("gpt2")
+    dir = sys.path[0]
 
-    input = "test"  
+    model_path = "Childebot.pth"
+    model = torch.load(model_path)
+    
+    token = GPT2Tokenizer.from_pretrained("Childebot.py")
+
+    input = "Hey"  
     input_ids = token.encode(input, return_tensors="pt")
 
     output = model.generate(input_ids, max_length=100, num_return_sequences=1, pad_token_id=token.eos_token_id)
